@@ -1,23 +1,24 @@
 import fs from 'fs';
 import { scrapper } from './machine.js';
 
-const getAll = async () => {
-  const data = [];
+const getAll = async (step) => {
+  const request = [];
 
-  const friend = 245220;
-
-  for (let id = friend + 5; id > friend - 5; id--) {
+  const lastId = 475157 - step * 10;
+  console.log(`tranzendo do ID:${lastId + 5} até o ID:${lastId - 5}`);
+  for (let id = lastId + 5; id > 475157 - 5; id--) {
     const user = scrapper(id);
-    console.log({ user });
-    data.push(user);
+    request.push(user);
   }
-  return await Promise.all(data);
+  Promise.all(request).then((data) => {
+    fs.writeFileSync(`users-${step}.json`, JSON.stringify(data));
+  });
 };
 
-const main = async (row = 1) => {
-  const requests = await getAll();
-
-  fs.writeFileSync(`users-${row}.json`, JSON.stringify(requests));
+const main = async () => {
+  for (let step = 0; step < 100; step++) {
+    await getAll(step);
+  }
 };
 
 main();
